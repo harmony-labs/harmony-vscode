@@ -32,6 +32,10 @@
       {
         "command": "harmony.test",
         "title": "Test Harmony Connection"
+      },
+      {
+        "command": "harmony.showOutput",
+        "title": "Show Harmony Output"
       }
     ]
   },
@@ -44,9 +48,6 @@
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "package": "./node_modules/.bin/vsce package --no-dependencies --allow-missing-repository",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test"
