@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { UnixSocketTransport, type TransportEvent, type HarmonyMessage, type ConnectionState, createMessage } from '@harmony/core';
 import { access, constants } from 'node:fs/promises';
+import { EventManager } from './events';
 
 // Get socket path from environment variable or use default
 const SOCKET_PATH = process.env.SOCKET_PATH || '/tmp/harmony.sock';
@@ -8,13 +9,14 @@ const SOCKET_PATH = process.env.SOCKET_PATH || '/tmp/harmony.sock';
 // Connection status and transport for tests
 const stateChangeEmitter = new vscode.EventEmitter<ConnectionState>();
 const connectionStatus = {
-  state: 'disconnected' as ConnectionState,
-  onDidChange: stateChangeEmitter.event
+    state: 'disconnected' as ConnectionState,
+    onDidChange: stateChangeEmitter.event
 };
 
 let transport: UnixSocketTransport<unknown> | null = null;
 let outputChannel: vscode.OutputChannel;
 let reconnectTimer: NodeJS.Timeout | null = null;
+let eventManager: EventManager | null = null;
 const RECONNECT_INTERVAL = 5000; // Try reconnecting every 5 seconds
 
 // Event emitter for test message responses
@@ -66,8 +68,17 @@ async function tryConnect(): Promise<void> {
                         vscode.window.showInformationMessage('Connected to Harmony');
                         startPinging();
                         stopReconnectTimer();
+                        
+                        // Initialize event manager
+                        if (!eventManager && transport) {
+                            eventManager = new EventManager(transport, instanceId, outputChannel);
+                        }
                     } else if (event.state === 'disconnected' || event.state === 'error') {
                         stopPinging();
+                        if (eventManager) {
+                            eventManager.dispose();
+                            eventManager = null;
+                        }
                         transport = null; // Clear transport on disconnect/error
                         startReconnectTimer();
                     }
@@ -82,6 +93,10 @@ async function tryConnect(): Promise<void> {
                     vscode.window.showErrorMessage(`Harmony error: ${event.error.message}`);
                     // Treat errors as disconnects
                     stopPinging();
+                    if (eventManager) {
+                        eventManager.dispose();
+                        eventManager = null;
+                    }
                     transport = null;
                     startReconnectTimer();
                     break;
@@ -152,6 +167,10 @@ export function activate(context: vscode.ExtensionContext) {
             outputChannel.appendLine(`[${new Date().toISOString()}] Disconnecting from Harmony...`);
             stopPinging();
             stopReconnectTimer();
+            if (eventManager) {
+                eventManager.dispose();
+                eventManager = null;
+            }
             await transport.disconnect();
             transport = null;
             outputChannel.appendLine(`[${new Date().toISOString()}] Disconnected from Harmony`);
@@ -238,6 +257,10 @@ function startPinging() {
                 outputChannel.appendLine(`[${new Date().toISOString()}] Failed to send ping: ${err.message}`);
                 // If ping fails, treat as disconnected
                 stopPinging();
+                if (eventManager) {
+                    eventManager.dispose();
+                    eventManager = null;
+                }
                 transport = null;
                 startReconnectTimer();
             }
@@ -256,6 +279,10 @@ function stopPinging() {
 export function deactivate() {
     stopPinging();
     stopReconnectTimer();
+    if (eventManager) {
+        eventManager.dispose();
+        eventManager = null;
+    }
     if (transport) {
         outputChannel.appendLine(`[${new Date().toISOString()}] Extension deactivating, disconnecting from Harmony...`);
         transport.disconnect().catch((error: Error) => {
