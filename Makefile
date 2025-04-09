@@ -1,3 +1,4 @@
+AZURE_DEVOPS_ORG ?= HarmonyLabs
 # VS Code Extension Makefile
 
 .PHONY: help install build test clean
@@ -15,6 +16,15 @@ install: ## Install dependencies
 build: ## Build the extension
 	@echo "Building extension..."
 	pnpm run build
+
+login:
+	npx @vscode/vsce login MattWalters
+
+package:
+	npx @vscode/vsce package
+
+publish:
+	npx @vscode/vsce publish
 
 test: ## Run tests
 	@echo "Running tests..."

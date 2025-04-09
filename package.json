@@ -1,11 +1,11 @@
 {
   "name": "harmony-vscode",
   "displayName": "Harmony",
-  "description": "Harmony development environment",
-  "publisher": "harmony-dev",
+  "description": "Harmony AI driven knowledge base and task management system",
+  "publisher": "MattWalters",
   "repository": {
     "type": "git",
-    "url": "https://github.com/harmony-dev/harmony"
+    "url": "https://github.com/harmony-labs/harmony"
   },
   "license": "MIT",
   "version": "0.1.0",
