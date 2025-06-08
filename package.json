@@ -1,5 +1,6 @@
 {
-  "name": "harmony-vscode",
+  "name": "@harmony/vscode",
+  "private": true,
   "displayName": "Harmony",
   "description": "Harmony AI driven knowledge base and task management system",
   "publisher": "MattWalters",
@@ -53,7 +54,7 @@
     "test": "vscode-test"
   },
   "dependencies": {
-    "@harmony/core": "workspace:*"
+    "@harmony/core": "0.0.0-dev"
   },
   "devDependencies": {
     "@types/vscode": "^1.96.0",
