@@ -6,6 +6,7 @@ settings:
 
 overrides:
   '@harmony/core': link:../harmony-core
+  harmony-vscode: 'link:'
 
 importers:
 
@@ -14,6 +15,9 @@ importers:
       '@harmony/core':
         specifier: link:../harmony-core
         version: link:../harmony-core
+      harmony-vscode:
+        specifier: 'link:'
+        version: 'link:'
     devDependencies:
       '@types/mocha':
         specifier: ^10.0.10

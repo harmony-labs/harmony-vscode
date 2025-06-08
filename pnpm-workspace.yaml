@@ -1,2 +1,9 @@
+packages:
+  - .
+onlyBuiltDependencies:
+  - '@vscode/vsce-sign'
+  - esbuild
+  - keytar
 overrides:
   '@harmony/core': link:../harmony-core
+  harmony-vscode: 'link:'
